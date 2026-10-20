@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SkyTray</title>
+<link rel="stylesheet" href="../vendor/leaflet.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="place">
+    <span id="place-name">SkyTray</span>
+    <span id="updated" class="muted"></span>
+  </div>
+  <nav id="tabs" role="tablist">
+    <button data-tab="now" class="active">Now</button>
+    <button data-tab="hourly">Hourly</button>
+    <button data-tab="daily">16-Day</button>
+    <button data-tab="radar">Radar</button>
+    <button data-tab="history">Past 7 Days</button>
+    <button data-tab="alerts" id="tab-alerts" hidden>Alerts <span class="badge" id="alert-count"></span></button>
+    <button data-tab="settings" aria-label="Settings" title="Settings">⚙</button>
+  </nav>
+  <button id="refresh" class="icon-btn" title="Refresh now" aria-label="Refresh">⟳</button>
+</header>
+
+<div id="error" class="error-bar" hidden></div>
+
+<main>
+  <!-- NOW -->
+  <section id="panel-now" class="tab active">
+    <div id="alert-strip"></div>
+    <div class="hero" id="hero">
+      <div class="hero-now">
+        <img id="hero-icon" alt="">
+        <div class="hero-main">
+          <div class="hero-temp" id="hero-temp">–</div>
+          <div class="hero-cond" id="hero-cond"></div>
+          <div class="hero-facts">
+            <span>Feels like <b id="hero-feels"></b></span>
+            <span>High <b id="hero-hi"></b></span>
+            <span>Low <b id="hero-lo"></b></span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-side">
+        <div id="nowcast" class="nowcast"></div>
+        <div id="nws-now" class="nws-now"></div>
+      </div>
+    </div>
+    <div id="minutecast" class="card" hidden>
+      <h3>Precipitation, next 6 hours</h3>
+      <div id="minutecast-chart"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Next 24 hours</h3><a href="#" data-goto="hourly">Hourly details →</a></div>
+      <div class="strip" id="strip-24"></div>
+    </div>
+    <h2 class="section">Current details</h2>
+    <div class="tiles" id="tiles"></div>
+    <p class="attrib muted">Forecast: <a href="https://open-meteo.com/">Open-Meteo</a> ·
+      Alerts &amp; text forecast: <a href="https://www.weather.gov/">NWS</a> ·
+      Icons: <a href="https://github.com/basmilius/weather-icons">Meteocons</a></p>
+  </section>
+
+  <!-- HOURLY -->
+  <section id="panel-hourly" class="tab">
+    <div class="card">
+      <div class="card-head">
+        <h3>Hourly forecast</h3>
+        <div class="seg" id="hourly-range">
+          <button data-range="48" class="active">48 hours</button>
+          <button data-range="168">7 days</button>
+          <button data-range="384">16 days</button>
+        </div>
+      </div>
+      <div id="hourly-chart" class="chart"></div>
+    </div>
+    <div class="card">
+      <table class="table" id="hourly-table"></table>
+    </div>
+  </section>
+
+  <!-- DAILY -->
+  <section id="panel-daily" class="tab">
+    <div class="card"><div id="daily-list"></div></div>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="panel-history" class="tab">
+    <div class="card stats" id="history-summary"></div>
+    <div class="card">
+      <div class="card-head"><h3>Past 7 days, hourly</h3></div>
+      <div id="history-chart" class="chart"></div>
+    </div>
+    <div class="card"><table class="table" id="history-table"></table></div>
+    <p class="attrib muted">Past values are Open-Meteo's model analysis for this spot (closest-hour weather models),
+      not readings from a weather station.</p>
+  </section>
+
+  <!-- RADAR -->
+  <section id="panel-radar" class="tab">
+    <div class="radar-wrap">
+      <div id="map"></div>
+      <div class="radar-stamp" id="radar-stamp">
+        <div class="stamp-time" id="stamp-time">–</div>
+        <div class="stamp-sub" id="stamp-sub"></div>
+      </div>
+      <div class="radar-legend">
+        <div class="legend-bar"></div>
+        <div class="legend-labels"><span>Light</span><span>Moderate</span><span>Heavy</span><span>Severe</span></div>
+      </div>
+      <div class="radar-loading" id="radar-loading" hidden></div>
+    </div>
+    <div class="radar-controls">
+      <div class="transport">
+        <button id="r-prev" class="icon-btn" title="Previous frame (←)">⏮</button>
+        <button id="r-play" class="play-btn" title="Play / pause (Space)">▶</button>
+        <button id="r-next" class="icon-btn" title="Next frame (→)">⏭</button>
+        <button id="r-now" class="chip" title="Jump to latest scan (N)">Now</button>
+      </div>
+      <div class="timeline">
+        <input type="range" id="r-slider" min="0" max="1" value="0" step="1" aria-label="Radar time">
+        <div class="ticks" id="r-ticks"></div>
+      </div>
+      <div class="radar-opts">
+        <label>Past <select id="r-past">
+          <option value="1">1 h</option><option value="2">2 h</option><option value="3">3 h</option>
+          <option value="6">6 h</option><option value="12">12 h</option><option value="24">24 h</option></select></label>
+        <label>Future <select id="r-future">
+          <option value="0">off</option><option value="3">3 h</option><option value="6">6 h</option>
+          <option value="12">12 h</option><option value="18">18 h</option></select></label>
+        <label>Speed <select id="r-speed">
+          <option value="0.5">0.5×</option><option value="1">1×</option><option value="2">2×</option>
+          <option value="4">4×</option></select></label>
+        <label>Opacity <input type="range" id="r-opacity" min="0.2" max="1" step="0.05"></label>
+      </div>
+    </div>
+  </section>
+
+  <!-- ALERTS -->
+  <section id="panel-alerts" class="tab">
+    <div id="alerts-list"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="panel-settings" class="tab">
+    <div class="card settings">
+      <h3>Location</h3>
+      <div class="loc-row">
+        <input type="search" id="loc-search" placeholder="Search a city or ZIP…" autocomplete="off">
+        <button id="loc-ip" class="chip">Use my IP location</button>
+      </div>
+      <div id="loc-results"></div>
+      <p class="muted" id="loc-current"></p>
+
+      <h3>Units</h3>
+      <div class="seg" id="set-units">
+        <button data-v="imperial">°F, mph, in</button>
+        <button data-v="metric">°C, km/h, mm</button>
+      </div>
+
+      <h3>Top-bar icon</h3>
+      <div class="seg" id="set-icon">
+        <button data-v="color">Colour</button>
+        <button data-v="symbolic">Monochrome</button>
+      </div>
+
+      <h3>Update every</h3>
+      <div class="seg" id="set-refresh">
+        <button data-v="5">5 min</button><button data-v="10">10 min</button>
+        <button data-v="15">15 min</button><button data-v="30">30 min</button>
+      </div>
+
+      <h3>Hours in the tray menu</h3>
+      <div class="seg" id="set-hours">
+        <button data-v="6">6</button><button data-v="8">8</button>
+        <button data-v="12">12</button><button data-v="18">18</button><button data-v="24">24</button>
+      </div>
+
+      <h3>Startup</h3>
+      <label class="check"><input type="checkbox" id="set-autostart"> Start SkyTray when I log in</label>
+    </div>
+  </section>
+</main>
+
+<div id="tooltip" class="tooltip" hidden></div>
+
+<script src="../vendor/leaflet.js"></script>
+<script src="app.js"></script>
+<script src="radar.js"></script>
+</body>
+</html>
