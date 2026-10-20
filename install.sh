@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Copyright (C) 2026 G. Austin Servantes
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Install SkyTray for the current user: launcher, icon, `skytray` command and
 # start-at-login. Run from the repo; the app keeps running from this folder.
 #   ./install.sh            install (and start it)

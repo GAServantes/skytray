@@ -1,3 +1,5 @@
+/* Copyright (C) 2026 G. Austin Servantes
+ * SPDX-License-Identifier: GPL-3.0-or-later */
 /* SkyTray radar: past NEXRAD composite scans + HRRR forecast reflectivity (US, via
  * Iowa Environmental Mesonet), or RainViewer elsewhere. Each frame is a Leaflet tile
  * layer; all frames stay loaded and only the current one is visible, so playback and

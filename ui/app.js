@@ -1,3 +1,5 @@
+/* Copyright (C) 2026 G. Austin Servantes
+ * SPDX-License-Identifier: GPL-3.0-or-later */
 /* SkyTray forecast window. State is pushed in from Python via App.setState(). */
 "use strict";
 
