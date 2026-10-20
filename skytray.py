@@ -51,7 +51,7 @@ DATA_DIR = os.environ.get(
 CACHE_DIR = (os.path.join(os.environ["SKYTRAY_HOME"], "cache") if "SKYTRAY_HOME" in os.environ
              else os.path.join(GLib.get_user_cache_dir(), "skytray"))
 AUTOSTART_FILE = os.path.join(GLib.get_user_config_dir(), "autostart", "skytray.desktop")
-VERSION = "1.3"
+VERSION = "1.3.1"
 USER_AGENT = f"SkyTray/{VERSION} (personal desktop weather indicator)"
 WINDOW_BG = {True: "#0d0f13", False: "#eef1f5"}  # matches --bg in ui/style.css
 
@@ -167,11 +167,18 @@ class Config(dict):
 # ---------------------------------------------------------------- data
 
 def locate_by_ip():
-    d = http_json("http://ip-api.com/json/", timeout=8)
-    if d.get("status") != "success":
-        raise RuntimeError("IP lookup failed")
+    """Approximate (city-level) location from the public IP, over HTTPS.
+    ipinfo.io first, ipwho.is if that fails; neither needs a key."""
+    try:
+        d = http_json("https://ipinfo.io/json", timeout=8)
+        lat, lon = (float(v) for v in d["loc"].split(","))
+    except Exception:
+        d = http_json("https://ipwho.is/", timeout=8)
+        if not d.get("success"):
+            raise RuntimeError("IP lookup failed")
+        lat, lon = float(d["latitude"]), float(d["longitude"])
     place = ", ".join(x for x in (d.get("city"), d.get("region")) if x)
-    return d["lat"], d["lon"], place
+    return lat, lon, place
 
 
 def fetch_weather(req):

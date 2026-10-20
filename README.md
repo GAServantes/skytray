@@ -1,134 +1,106 @@
-# SkyTray
+<h1 align="center">SkyTray</h1>
+<p align="center"><b>The weather in your top bar, with a radar you can play.</b><br>
+A weather indicator for the GNOME desktop on Ubuntu. No accounts, no API keys.</p>
 
-A weather indicator for the GNOME top bar on Ubuntu 24.04. It shows a condition
-icon and the temperature all the time. One click shows the next 12 hours, and a
-window has the full forecast plus an animated radar you can play and scrub.
+![The SkyTray window: current conditions, tonight's forecast, the next 24 hours and detail tiles](docs/screenshots/now.png)
 
-It is a single-instance Python/GTK3 `Gtk.Application` with an
-AyatanaAppIndicator tray icon. The forecast window is a WebKit2 (4.1) view of
-`ui/index.html`. No API keys or accounts are needed.
+SkyTray shows a condition icon and the temperature in the top bar all the time.
+One click shows the next 12 hours. The forecast window has today at a glance,
+hourly charts, a 16-day outlook, the past week, and an animated radar you can
+play and scrub, including where the rain is headed next.
+
+<p align="center"><img src="docs/screenshots/radar.gif" width="640" alt="The radar tab playing: past radar scans, then purple forecast frames from the HRRR model"></p>
+
+## What it does
+
+- **Top bar:** the condition icon (colour, or monochrome to match GNOME) and
+  the temperature. A ⚠ appears while a weather alert is active.
+- **Click for the menu:**
+  - current conditions, feels-like, today's high and low, and wind
+  - when rain or snow is about to start or stop ("Rain starting around
+    3:15 PM")
+  - any weather alerts
+  - the next 12 hours (you can change how many)
+  - Forecast & details…, Radar…, Refresh, Settings…, Quit
+- **The forecast window:**
+  - **Now:** current conditions, the National Weather Service's forecast in
+    words, a 6-hour rain chart when rain is expected, the next 24 hours, and
+    tiles for wind, humidity, pressure, UV, clouds and visibility,
+    sunrise and sunset, air quality and the moon.
+  - **Hourly:** temperature and feels-like, plus the chance of rain, as
+    charts you can hover, for 48 hours, 7 days or 16 days, with a full table
+    below.
+  - **16-Day:** each day's low and high on a range bar. Click a day for its
+    forecast in words and its hours. Days 8–16 are marked as less certain.
+  - **Past 7 Days:** total rain, the warmest, coldest and wettest days, and
+    charts of the week.
+  - **Radar:** the last 1–24 hours of radar, then up to 18 hours of forecast
+    radar (purple). Play, pause, step or drag through time; change the speed
+    and opacity. Keys: Space plays or pauses, ←/→ step, N jumps to now.
+  - **Alerts:** only while an alert is active.
+  - **⚙ Settings:** search for a city or ZIP code, or use your approximate
+    location; °F or °C; icon style; how often to refresh; menu length; start
+    at login.
+
+<table>
+<tr>
+<td><img src="docs/screenshots/menu.png" alt="The top-bar menu: current conditions and the next 12 hours" width="300"></td>
+<td><img src="docs/screenshots/hourly.png" alt="The Hourly tab: temperature and chance-of-rain charts with a table below"><br><br>
+<img src="docs/screenshots/daily.png" alt="The 16-Day tab: a low-to-high bar for each day"></td>
+</tr>
+</table>
+
+**Outside the US:** the forecast, charts, past week and radar history work
+anywhere. Weather alerts, the forecast in words and forecast radar come from
+US services, so they only appear for US locations, and the radar there shows
+the past couple of hours only.
 
 ## Install
 
-Requirements: Ubuntu 24.04 (or another GNOME desktop) with the AppIndicator
-extension enabled (Ubuntu has it on by default), plus
-`python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1 gir1.2-ayatanaappindicator3-0.1 python3-gi-cairo`.
+Requirements: Ubuntu 24.04 or 26.04 (or another GNOME desktop) with the
+AppIndicator extension enabled. Ubuntu has it on by default.
 
 ```bash
+sudo apt install python3-gi python3-gi-cairo gir1.2-gtk-3.0 gir1.2-webkit2-4.1 gir1.2-ayatanaappindicator3-0.1
 git clone https://github.com/GAServantes/skytray.git ~/skytray
-~/skytray/install.sh          # launcher, `skytray` command, start at login; starts it
-~/skytray/install.sh --remove # undo
+~/skytray/install.sh          # app menu entry, `skytray` command, start at login; starts it
+~/skytray/install.sh --remove # undo (your settings stay in ~/.local/share/skytray)
 ```
 
-The app runs from the cloned folder, so keep it there. On first run it finds
-your location from your IP address; change it under Settings (⚙).
+The app runs from the cloned folder, so keep it there. On first run it uses
+your approximate location (see Privacy); change it any time under ⚙ Settings.
 
-## Using it
+From a terminal: `skytray [--details | --radar | --refresh | --quit]`. These
+are passed to the running copy.
 
-- **Top bar:** the icon (Meteocons colour by default, or monochrome GNOME
-  symbolic icons) and the temperature. A ⚠ is appended while an NWS alert is
-  active.
-- **Click (menu):**
-  - current conditions, feels-like, today's high and low, and wind
-  - a precipitation nowcast ("Rain starting around 3:15 PM"), from Open-Meteo
-    15-minute data
-  - any NWS alerts
-  - the next N hours (12 by default)
-  - Forecast & details…, Radar…, Refresh, Settings…, Quit
-- **Window tabs:**
-  - **Now:** hero conditions, NWS text forecast, a 6-hour precipitation chart
-    (shown only when precipitation is expected), a 24-hour strip, and detail
-    tiles: wind, humidity, pressure trend, UV, clouds and visibility,
-    sunrise/sunset, AQI, moon.
-  - **Hourly:** a temperature and feels-like chart and a precipitation-chance
-    chart, with a crosshair tooltip. Night hours are shaded. Ranges are 48 h,
-    7 days or 16 days, with a full table below.
-  - **16-Day:** daily rows with a low–high range bar. Click a day to see the
-    NWS narrative, extra facts and that day's hours. Days 8–16 are marked
-    lower confidence.
-  - **Past 7 Days:** summary tiles (total precipitation, warmest, coldest,
-    wettest day), an hourly temperature and precipitation-amount chart, and a
-    daily table. Nothing is stored locally: `past_days=7` on the same
-    Open-Meteo request returns it. It's model analysis, not station readings.
-  - **Radar:** past NEXRAD composite scans plus HRRR simulated-reflectivity
-    forecast frames (shown in purple, "Forecast · HRRR model").
-    - Controls: play/pause, step, a "Now" button, and a time-scaled scrub
-      slider.
-    - Past window: 1–24 h. Future window: off to 18 h.
-    - Speed and opacity are adjustable.
-    - Keys: Space plays or pauses, ←/→ step, Home/End jump to the ends, N
-      jumps to now.
-  - **Alerts:** only shown while alerts are active.
-  - **⚙ Settings:** location search (city or ZIP), IP location, units, icon
-    style, refresh interval, menu hours, start at login.
+## Privacy
 
-CLI (forwarded to the running instance): `skytray [--details | --radar |
---refresh | --quit]`. There is also a symlink at `~/.local/bin/skytray`.
+SkyTray has no account and no server of its own. It only talks to the
+weather services below, and sends them the coordinates of the place you
+chose.
 
-## Data sources (none need API keys)
+The one exception is finding your location. When no location is set yet, or
+when you click "Use my IP location", it asks ipinfo.io (or ipwho.is if that
+fails) over HTTPS for the approximate, city-level location of your internet
+connection. Pick a place by name instead and that lookup never happens.
 
-| What | Source | Notes |
-|---|---|---|
-| Forecast (current, 15-min, hourly, 16-day, past 7 days) | api.open-meteo.com | `past_days=7`, so hourly/daily arrays start 7 days back and forecast views filter from now/today; `timeformat=unixtime`, so all times are formatted in the location's timezone |
-| Air quality | air-quality-api.open-meteo.com | optional |
-| Alerts and text forecast | api.weather.gov | US only; the `/points` lookup is cached in config as `_nws_points` |
-| Observed radar | IEM `ridge::USCOMP-N0Q-YYYYMMDDHHMM` tiles | the scan list comes from `mesonet.agron.iastate.edu/json/radar.py?operation=list` |
-| Forecast radar | IEM `hrrr::REFD-F{min:04d}-{run}` tiles | 15-min steps to F1080. Runs appear about 1.5 h late; `hrrrRun()` probes tiles to find the newest complete run |
-| Radar outside the US | RainViewer `weather-maps.json` | past frames only (no nowcast now), max native zoom 7 |
-| Basemap | Esri Canvas World Dark/Light Gray, Base + Reference | **CARTO basemaps now return "API KEY REQUIRED" tiles**, so don't switch back |
-| Geocoding | geocoding-api.open-meteo.com | called from JS in Settings |
-| First-run location | ip-api.com (http) | |
+Settings stay on your computer in `~/.local/share/skytray/`.
 
-## Files
-
-| Path | Purpose |
+| What | From |
 |---|---|
-| `skytray.py` | Tray app, data fetching, menu, window host |
-| `install.sh` | Per-user install/remove (launcher, icon, symlink, autostart) |
-| `ui/index.html`, `app.js`, `radar.js`, `style.css` | Forecast window |
-| `icons/meteocons/` | Meteocons v2 static fill SVGs (MIT, Bas Milius) |
-| `vendor/leaflet.*` | Leaflet 1.9.4 (BSD-2, `vendor/LICENSE-leaflet`) |
-| `~/.local/share/skytray/config.json` | Settings (only `DEFAULTS` keys and `_`-prefixed cache keys are loaded) |
-| `~/.cache/skytray/tray-*.png` | Tray icons, rendered from SVG and cropped tight (Meteocons have wide margins) |
-| `~/.config/autostart/skytray.desktop` | Start at login |
-| `~/.local/share/applications/skytray.desktop` | Launcher; opens the window, with a Radar action |
+| Forecast, past week, air quality, place search | [Open-Meteo](https://open-meteo.com) |
+| US alerts and forecast in words | [National Weather Service](https://www.weather.gov/documentation/services-web-api) |
+| US radar and forecast radar (HRRR) | [Iowa Environmental Mesonet](https://mesonet.agron.iastate.edu) |
+| Radar outside the US | [RainViewer](https://www.rainviewer.com/api.html) |
+| Map | Esri |
 
-## How it works / gotchas
+## Development
 
-- Python → page: `App.setState(json)` is pushed on load and after every fetch.
-  Page → Python: `webkit.messageHandlers.app.postMessage(JSON)` with commands
-  `refresh`, `settings`, `locate-ip` and `open`.
-- The refresh timer ticks every 60 s and fetches when the data is older than
-  `refresh_minutes`, so it catches up right after suspend. The menu is only
-  rebuilt on the hour or after a fetch, because rebuilding closes an open menu.
-- Radar: every frame is its own Leaflet tile layer and all of them stay on the
-  map, so scrubbing is instant. Only the current frame has opacity > 0.
-  Playback waits one extra tick for a frame whose tiles haven't loaded.
-- The dark or light theme comes from gsettings `color-scheme` and is passed to
-  the page as `data-theme`.
+[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) covers how it's put together, the
+data sources in detail, test instances that don't touch your real settings,
+and the gotchas.
 
-## Testing
-
-```bash
-S=/some/scratch; mkdir -p $S/home
-echo '{"lat": 39.74, "lon": -104.99, "place": "Test"}' > $S/home/config.json
-export SKYTRAY_HOME=$S/home SKYTRAY_APP_ID=io.github.local.SkyTrayTest
-./skytray.py &                           # separate test instance and tray icon
-./skytray.py --snapshot hourly out.png 3 # WebKit snapshot of a tab after 3 s
-./skytray.py --js 'Radar.show(0)'        # run JS in the open window
-./skytray.py --quit
-```
-
-- A test instance keeps its config and cache under `SKYTRAY_HOME`, apart from the real one.
-- JS `console.log` output goes to the instance's stdout.
-- **`--snapshot` doesn't capture the radar overlay** (WebKit's snapshot drops
-  composited layers). Use a portal screenshot to check the radar.
-- To inspect the tray menu without clicking, call
-  `com.canonical.dbusmenu.GetLayout` on `/org/ayatana/NotificationItem/skytray/Menu`.
-
-After editing, restart with `./skytray.py --quit; nohup ./skytray.py >/dev/null 2>&1 &`.
-
-## Licence
+## License
 
 SkyTray is free software under the **GNU General Public License v3.0 or later**
 (see `LICENSE`). You can use, study, share and modify it; if you distribute a
@@ -136,19 +108,20 @@ modified version, it must also be under the GPL with its source available.
 
 Copyright (C) 2026 G. Austin Servantes.
 
-Bundled third-party parts keep their own licences: Meteocons icons (MIT,
+Bundled third-party parts keep their own licenses: Meteocons icons (MIT,
 `icons/meteocons/LICENSE`) and Leaflet (BSD-2-Clause, `vendor/LICENSE-leaflet`).
 Both are GPL-compatible. Weather, radar and map data come from the services
 listed above under their own terms of use.
 
-## History
+## Changelog
 
-- 2026-09-29 v1: tray icon and label, hourly menu, nowcast, NWS alerts,
-  forecast window (Now/Hourly/16-Day/Alerts/Settings), and radar with IEM
-  NEXRAD + HRRR forecast frames, play and scrub.
-- 2026-09-29 v1.1: Past 7 Days tab (Open-Meteo `past_days=7`), radar past window up to 24 h.
-- 2026-09-29 v1.2: redesign. Condition-tinted hero; 24 h strip with a temperature curve; detail tiles each with their own graphic (wind compass, sun arc, UV/AQI scales, meters, pressure sparkline, moon phases) and a plain-words note; history stat row. The last good payload is cached in `~/.cache/skytray/last.json` (shown with a notice when a fetch fails; Open-Meteo had a 503 outage during this work).
-- 2026-10-19 v1.3: review fixes.
+- **1.3.1** (2026-10-20):
+  - Finding your location from your IP address now uses HTTPS (ipinfo.io,
+    with ipwho.is as a fallback) instead of plain http to ip-api.com.
+  - Screenshots, a Privacy section and an "Outside the US" note in the
+    README; the developer notes moved to `docs/DEVELOPMENT.md`.
+  - Checked on Ubuntu 26.04 (GNOME 50).
+- **1.3** (2026-10-19): review fixes.
   - A fetch that was running when you changed location or units no longer
     overwrites the new settings with old-place data (it used to also block the
     new fetch for up to 10 minutes). Forced refreshes queue behind a running one.
@@ -161,5 +134,15 @@ listed above under their own terms of use.
     and keyboard controls no longer double-fire on focused buttons or sliders.
   - Location search ignores out-of-order responses; small guards for missing
     data.
-  - `install.sh`, `.gitignore` and the Leaflet licence for publishing;
+  - `install.sh`, `.gitignore` and the Leaflet license for publishing;
     `SKYTRAY_HOME` test instances get their own cache.
+- **1.2** (2026-09-29): redesign. Condition-tinted header; a 24-hour strip
+  with a temperature curve; detail tiles each with their own graphic (wind
+  compass, sun arc, UV and air-quality scales, pressure trend, moon phases)
+  and a plain-words note. The last good forecast is kept and shown with a
+  notice when a fetch fails.
+- **1.1** (2026-09-29): Past 7 Days tab; radar history up to 24 hours.
+- **1.0** (2026-09-29): tray icon and temperature, hourly menu, rain/snow
+  timing, weather alerts, the forecast window (Now, Hourly, 16-Day, Alerts,
+  Settings), and radar with past scans and HRRR forecast frames you can play
+  and scrub.
