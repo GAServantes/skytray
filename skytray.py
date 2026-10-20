@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (C) 2026 G. Austin Servantes
+# SPDX-License-Identifier: GPL-3.0-or-later
 """SkyTray - a weather indicator for the GNOME top bar.
 
 The top bar shows a condition icon and the current temperature.  Clicking it

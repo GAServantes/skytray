@@ -128,6 +128,19 @@ export SKYTRAY_HOME=$S/home SKYTRAY_APP_ID=io.github.local.SkyTrayTest
 
 After editing, restart with `./skytray.py --quit; nohup ./skytray.py >/dev/null 2>&1 &`.
 
+## Licence
+
+SkyTray is free software under the **GNU General Public License v3.0 or later**
+(see `LICENSE`). You can use, study, share and modify it; if you distribute a
+modified version, it must also be under the GPL with its source available.
+
+Copyright (C) 2026 G. Austin Servantes.
+
+Bundled third-party parts keep their own licences: Meteocons icons (MIT,
+`icons/meteocons/LICENSE`) and Leaflet (BSD-2-Clause, `vendor/LICENSE-leaflet`).
+Both are GPL-compatible. Weather, radar and map data come from the services
+listed above under their own terms of use.
+
 ## History
 
 - 2026-09-29 v1: tray icon and label, hourly menu, nowcast, NWS alerts,
