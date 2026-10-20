@@ -1,0 +1,44 @@
+name: Bug report
+description: Something doesn't work the way it should
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: SkyTray version
+      description: "The number in the README changelog, or `grep ^VERSION skytray.py`."
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Distribution and version
+      placeholder: Ubuntu 24.04
+    validations:
+      required: true
+  - type: input
+    id: desktop
+    attributes:
+      label: Desktop and session
+      description: "Your desktop and its version, and Wayland or X11 (`echo $XDG_SESSION_TYPE`)."
+      placeholder: GNOME 46, Wayland
+    validations:
+      required: true
+  - type: input
+    id: country
+    attributes:
+      label: Country
+      description: "Some features are US-only. Just the country, no need for your location."
+  - type: textarea
+    id: logs
+    attributes:
+      label: Output
+      description: "Quit SkyTray (`skytray --quit`), start it from a terminal (`skytray`), reproduce the problem, and paste what it prints. Remove anything that shows where you live."
+      render: text

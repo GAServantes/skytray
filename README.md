@@ -1,6 +1,11 @@
 <h1 align="center">SkyTray</h1>
 <p align="center"><b>The weather in your top bar, with a radar you can play.</b><br>
 A weather indicator for the GNOME desktop on Ubuntu. No accounts, no API keys.</p>
+<p align="center">
+<a href="https://github.com/GAServantes/skytray/actions/workflows/ci.yml"><img src="https://github.com/GAServantes/skytray/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+<a href="https://github.com/GAServantes/skytray/releases/latest"><img src="https://img.shields.io/github/v/release/GAServantes/skytray" alt="Latest release"></a>
+<a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--or--later-blue" alt="License: GPL-3.0-or-later"></a>
+</p>
 
 ![The SkyTray window: current conditions, tonight's forecast, the next 24 hours and detail tiles](docs/screenshots/now.png)
 

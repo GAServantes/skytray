@@ -1,0 +1,11 @@
+name: Idea or feature request
+description: Suggest something SkyTray could do
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like?
+      description: What you're trying to do, and how SkyTray could help.
+    validations:
+      required: true
