@@ -1,3 +1,5 @@
+<p align="center"><img src="icons/meteocons/partly-cloudy-day.svg" width="96" alt="SkyTray icon"></p>
+
 <h1 align="center">SkyTray</h1>
 <p align="center"><b>The weather in your top bar, with a radar you can play.</b><br>
 A weather indicator for the GNOME desktop on Ubuntu. No accounts, no API keys.</p>
@@ -99,32 +101,13 @@ Settings stay on your computer in `~/.local/share/skytray/`.
 | Radar outside the US | [RainViewer](https://www.rainviewer.com/api.html) |
 | Map | Esri |
 
-## Development
-
-[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) covers how it's put together, the
-data sources in detail, test instances that don't touch your real settings,
-and the gotchas.
-
-## License
-
-SkyTray is free software under the **GNU General Public License v3.0 or later**
-(see `LICENSE`). You can use, study, share and modify it; if you distribute a
-modified version, it must also be under the GPL with its source available.
-
-Copyright (C) 2026 G. Austin Servantes.
-
-Bundled third-party parts keep their own licenses: Meteocons icons (MIT,
-`icons/meteocons/LICENSE`) and Leaflet (BSD-2-Clause, `vendor/LICENSE-leaflet`).
-Both are GPL-compatible. Weather, radar and map data come from the services
-listed above under their own terms of use.
-
 ## Changelog
 
 - **1.3.1** (2026-10-20):
   - Finding your location from your IP address now uses HTTPS (ipinfo.io,
     with ipwho.is as a fallback) instead of plain http to ip-api.com.
   - Screenshots, a Privacy section and an "Outside the US" note in the
-    README; the developer notes moved to `docs/DEVELOPMENT.md`.
+    README.
   - Checked on Ubuntu 26.04 (GNOME 50).
 - **1.3** (2026-10-19): review fixes.
   - A fetch that was running when you changed location or units no longer
@@ -151,3 +134,16 @@ listed above under their own terms of use.
   timing, weather alerts, the forecast window (Now, Hourly, 16-Day, Alerts,
   Settings), and radar with past scans and HRRR forecast frames you can play
   and scrub.
+
+## License
+
+SkyTray is free software under the **GNU General Public License v3.0 or later**
+(see `LICENSE`). You can use, study, share and modify it; if you distribute a
+modified version, it must also be under the GPL with its source available.
+
+Copyright (C) 2026 G. Austin Servantes.
+
+Bundled third-party parts keep their own licenses: Meteocons icons (MIT,
+`icons/meteocons/LICENSE`) and Leaflet (BSD-2-Clause, `vendor/LICENSE-leaflet`).
+Both are GPL-compatible. Weather, radar and map data come from the services
+listed above under their own terms of use.
